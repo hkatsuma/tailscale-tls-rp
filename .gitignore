@@ -1,0 +1,8 @@
+# Environment configuration
+.env
+
+# Secrets
+secrets/
+
+# Tailscale state and logs
+tailscale/state/
