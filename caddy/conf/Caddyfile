@@ -1,0 +1,20 @@
+{$CADDY_DOMAIN} {
+    tls {
+        get_certificate tailscale
+    }
+    reverse_proxy {$UPSTREAM_HOST}:{$UPSTREAM_PORT} {
+        header_up Host {http.request.host}
+        header_up X-Real-IP {http.request.remote}
+        header_up X-Forwarded-Host {http.request.host}
+        header_up X-Forwarded-Server {http.request.host}
+        header_up X-Forwarded-For {http.request.remote}
+        transport http {
+            # Skip TLS verification when connecting to the upstream server
+            tls_insecure_skip_verify
+        }
+    }
+    log {
+        output stdout
+    }
+}
+
