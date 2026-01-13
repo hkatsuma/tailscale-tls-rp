@@ -1,0 +1,42 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    hostname: ${TAILSCALE_HOSTNAME}
+    env_file: .env
+    environment:
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SOCKET=/var/run/tailscale/tailscaled.sock
+      - TS_AUTHKEY_FILE=/run/secrets/TS_AUTHKEY
+    secrets:
+      - source: ts_authkey
+        target: /run/secrets/TS_AUTHKEY
+        mode: 0400
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - tailscale_sock:/var/run/tailscale
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+    restart: unless-stopped
+  caddy:
+    image: caddy:latest
+    depends_on:
+      - tailscale
+    network_mode: service:tailscale
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./caddy/conf:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+      - tailscale_sock:/var/run/tailscale
+
+volumes:
+  caddy_data:
+  caddy_config:
+  tailscale_sock:
+
+secrets:
+  ts_authkey:
+    file: ./secrets/ts_authkey.txt
