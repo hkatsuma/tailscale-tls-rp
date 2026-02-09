@@ -18,14 +18,14 @@ services:
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - net_admin
-    restart: unless-stopped
+    restart: always
   caddy:
     image: caddy:latest
     depends_on:
       - tailscale
     network_mode: service:tailscale
     env_file: .env
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./caddy/conf:/etc/caddy
       - caddy_data:/data
